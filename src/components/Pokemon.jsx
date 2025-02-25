@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import pikachu from '../assets/pikachu.jpg'
+import { useState, useEffect, useRef } from 'react'
+// import pikachu from '../assets/pikachu.jpg'
 import { useContext } from 'react'
 import { SquadContext } from '../PokemonContext'
 
@@ -27,6 +27,25 @@ const Pokemon = (props)=>{
     
         fetchPokemon()
       },[])
+
+      const cardIsInSquad = (pokemon)=>{
+        return squad.some(card => card.name == pokemon.name)
+      }
+
+      const handleAdd = (pokemon)=>{
+        if(!cardIsInSquad(pokemon) && squad.length != 6){
+          setSquad([...squad, pokemon])
+        }
+      }
+
+      const buttonRef = useRef(null);
+      let disabled = cardIsInSquad(pokemon)
+
+      useEffect(() => {
+        if (disabled && buttonRef.current === document.activeElement) {
+          buttonRef.current.blur();
+        }
+      }, [disabled]);
       
     return <div className='border-2 w-50 rounded-md mt-2'>
         <img className='h-40 ' src={pokemonImg} alt={pokemon.name} />
@@ -35,7 +54,7 @@ const Pokemon = (props)=>{
             <h2 >{pokemon.name}</h2>
             <h3>Height: {pokemonData.height}</h3>
           </div>
-          <button className='m-3 bg-green-700 p-2 rounded-md' onClick={() => setSquad([...squad, pokemon])}>Add</button>
+          <button className='m-3 bg-green-700 p-2 rounded-md' ref={buttonRef} disabled={disabled} onClick={() => handleAdd(pokemon)}>Add</button>
         </div>
         <h6 className='m-2'>Base Experience: {pokemonData.base_experience}</h6>
     </div> 
